@@ -1,0 +1,56 @@
+<resources>
+    <string name="app_name">Phonebook</string>
+    <string name="no_more">No more results to show</string>
+    <string name="number">+8801858030569</string>
+    <string name="name">Bijoy Debnath </string>
+    <string name="load_more">Load More</string>
+    <string name="bijoy_debnath">Bijoy Debnath</string>
+
+    <array name="name">
+        <item>Nasir Uddin</item>
+        <item>Parvaz Maruf</item>
+        <item>Shohid Shanto</item>
+        <item>Norus Safa Sami</item>
+        <item>Mejanur Rahman</item>
+        <item>Sonia Mehejabin</item>
+        <item>Umme Honey</item>
+        <item>Adnan Siam</item>
+        <item>Nasir Faraze</item>
+        <item>Ahsan Ullah Rajib</item>
+        <item>Sayed Himu</item>
+        <item>Alamin Samir</item>
+        <item>Porag Miazee</item>
+        <item>Md Shahadat Hossain</item>
+        <item>Msshakila Japur</item>
+        <item>Mohammad Sultan</item>
+        <item>Maidul Islam</item>
+        <item>Emon Farazi</item>
+        <item>Md Ataur Rahman</item>
+        <item>Syed A K Arman</item>
+    </array>
+
+    <array name="number">
+        <item>+88012 2222 2222</item>
+        <item>+88013 3333 3333</item>
+        <item>+88014 4444 4444</item>
+        <item>+88015 5555 5555</item>
+        <item>+88016 6666 6666</item>
+        <item>+88017 7777 7777</item>
+        <item>+88018 8888 8888</item>
+        <item>+88019 9999 9999</item>
+        <item>+88012 2222 2221</item>
+        <item>+88012 2222 2223</item>
+        <item>+88012 2222 2224</item>
+        <item>+88012 2222 2225</item>
+        <item>+88012 2222 2226</item>
+        <item>+88012 2222 2227</item>
+        <item>+88012 2222 2228</item>
+        <item>+88012 2222 2229</item>
+        <item>+88012 2222 2230</item>
+        <item>+88012 2222 2231</item>
+        <item>+88012 2222 2232</item>
+        <item>+88012 2222 2234</item>
+    </array>
+
+
+</resources>
