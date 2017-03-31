@@ -1,6 +1,9 @@
 package com.bijoy.phonebook;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -10,13 +13,20 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Build;
+import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bijoy.phonebook.Adapter.ContactRecyclerAdapter;
 import com.bijoy.phonebook.Database.ContactManager;
@@ -29,8 +39,7 @@ public class MainActivity extends AppCompatActivity {
     Context context;
 
     ImageView profileImageView;
-    String[] nameList;
-    String[] numberList;
+
 
     ContactManager contactManager;
     ContactItem contactItem;
@@ -39,6 +48,10 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<ContactItem> contactItemArrayList;
 
     ContactRecyclerAdapter contactRecyclerAdapter;
+
+    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
+
+    GridLayoutManager manager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,27 +71,67 @@ public class MainActivity extends AppCompatActivity {
 
         profileImageView.setImageBitmap(RoundImageView.getCircleBitmap(bitmap));
 
-        nameList = getResources().getStringArray(R.array.name);
-        numberList = getResources().getStringArray(R.array.number);
+        manager = new GridLayoutManager(context, 1, LinearLayoutManager.VERTICAL, false);
 
 
-        for (int i = 0; i < nameList.length; i++) {
-            contactItem = new ContactItem(nameList[i], numberList[i]);
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS);
 
-            if (!contactManager.checkIsNameExists(nameList[i])) {
-                contactManager.addContact(contactItem);
+
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            showContacts();
+        } else {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_CONTACTS},
+                    PERMISSIONS_REQUEST_READ_CONTACTS);
+        }
+
+//        contactRecyclerView.setLayoutManager(manager);
+//        contactItemArrayList = contactManager.getAllContacts("1");
+//        contactRecyclerAdapter = new ContactRecyclerAdapter(context, contactItemArrayList);
+//        contactRecyclerView.setAdapter(contactRecyclerAdapter);
+
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                showContacts();
+            } else {
+                Toast.makeText(this, "Until you grant the permission, we cannot display the names", Toast.LENGTH_SHORT).show();
+            }
+
+        }
+    }
+
+    private void showContacts() {
+        Cursor c = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, ContactsContract.Contacts.DISPLAY_NAME + " ASC ");
+
+        if (c != null) {
+            while (c.moveToNext()) {
+
+                String contactName = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+                String phNumber = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                contactItem = new ContactItem(contactName, phNumber);
+
+                if (!contactManager.checkIsNameExists(contactName)) {
+                    contactManager.addContact(contactItem);
+                }
+
             }
         }
 
+        if (c != null) {
+            c.close();
+        }
 
-        GridLayoutManager manager = new GridLayoutManager(context, 1, LinearLayoutManager.VERTICAL, false);
-
+        contactItemArrayList = contactManager.getAllContacts(10);
         contactRecyclerView.setLayoutManager(manager);
-
-        contactItemArrayList = contactManager.getAllContacts("1");
         contactRecyclerAdapter = new ContactRecyclerAdapter(context, contactItemArrayList);
         contactRecyclerView.setAdapter(contactRecyclerAdapter);
 
     }
-
 }

@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.bijoy.phonebook.Database.ContactManager;
 import com.bijoy.phonebook.Model.ContactItem;
+import com.bijoy.phonebook.PhoneBookSharePreference;
 import com.bijoy.phonebook.R;
 import com.bijoy.phonebook.RoundImageView;
 
@@ -36,6 +37,8 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     private boolean hasLoadButton = true;
 
+    PhoneBookSharePreference sharePreference;
+
 
     public boolean isHasLoadButton() {
         return hasLoadButton;
@@ -46,6 +49,8 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         this.context = context;
         this.contactItems = contactItems;
         contactManager = new ContactManager(context);
+        sharePreference = new PhoneBookSharePreference(context);
+
     }
 
 
@@ -80,12 +85,19 @@ public class ContactRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
         } else {
             final MoreViewHolder moreViewHolder = (MoreViewHolder) holder;
+            if (getItemCount() < sharePreference.getLimit()) {
+                moreViewHolder.moreButton.setText(R.string.no_more);
+            }
             moreViewHolder.moreButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    contactItems = contactManager.getAllContacts("2");
+                    contactItems = contactManager.getAllContacts(10);
                     notifyDataSetChanged();
-                    moreViewHolder.moreButton.setText(R.string.no_more);
+                    if (getItemCount() < sharePreference.getLimit()) {
+                        moreViewHolder.moreButton.setText(R.string.no_more);
+                    } else {
+                        moreViewHolder.moreButton.setText(R.string.load_more);
+                    }
                 }
             });
         }

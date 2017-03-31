@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.bijoy.phonebook.Model.ContactItem;
+import com.bijoy.phonebook.PhoneBookSharePreference;
 import com.bijoy.phonebook.RoundImageView;
 
 import java.util.ArrayList;
@@ -21,10 +22,12 @@ public class ContactManager {
     private ContactDbHelper contactDbHelper;
     private Context context;
     private Cursor cursor = null;
+    private PhoneBookSharePreference phoneBookSharePreference;
 
     public ContactManager(Context context) {
         this.context = context;
         contactDbHelper = new ContactDbHelper(context);
+        phoneBookSharePreference = new PhoneBookSharePreference(context);
     }
 
     public void addContact(ContactItem contactItem) {
@@ -70,21 +73,25 @@ public class ContactManager {
         return true;
     }
 
-    public ArrayList<ContactItem> getAllContacts(String type) {
+    public ArrayList<ContactItem> getAllContacts(int limit) {
         ArrayList<ContactItem> contactItemArrayList = new ArrayList<>();
         ContactItem contactItem;
         String query;
-        int i = 0;
+        int preLimit;
+        int imgPosition = 0;
+
+        if (phoneBookSharePreference.getLimit() == 0) {
+            phoneBookSharePreference.saveLimit(limit);
+        } else {
+            preLimit = phoneBookSharePreference.getLimit();
+
+            phoneBookSharePreference.saveLimit(preLimit += limit);
+        }
 
         try {
             database = contactDbHelper.getReadableDatabase();
 
-            if (type.equals("1")) {
-                query = "select * from " + ContactDbHelper.CONTACT_TABLE_NAME + " limit 10";
-            } else {
-                query = "select * from " + ContactDbHelper.CONTACT_TABLE_NAME;
-            }
-
+            query = "select * from " + ContactDbHelper.CONTACT_TABLE_NAME + " limit " + phoneBookSharePreference.getLimit();
             cursor = database.rawQuery(query, null);
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
@@ -93,10 +100,13 @@ public class ContactManager {
                         String name = cursor.getString(cursor.getColumnIndex(ContactDbHelper.CONTACT_NAME));
                         String number = cursor.getString(cursor.getColumnIndex(ContactDbHelper.CONTACT_NUMBER));
 
-                        contactItem = new ContactItem(id, name, number, RoundImageView.imageAll[i]);
+                        contactItem = new ContactItem(id, name, number, RoundImageView.imageAll[imgPosition]);
                         contactItemArrayList.add(contactItem);
-                        i++;
 
+                        if (imgPosition == 19) {
+                            imgPosition = 0;
+                        }
+                        imgPosition++;
 
                     } while (cursor.moveToNext());
                 }
